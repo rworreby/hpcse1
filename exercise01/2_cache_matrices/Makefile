@@ -1,5 +1,5 @@
 CXX = c++
-CXXFLAGS = -O3 -std=c++11 -Wall -Wextra -Wpedantic
+CXXFLAGS = -O3 -std=c++17 -Wall -Wextra -Wpedantic
 
 targets = matrix_vector transpose  matrix_matrix
 
