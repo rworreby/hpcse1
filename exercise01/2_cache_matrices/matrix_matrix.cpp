@@ -80,8 +80,8 @@ int main(){
     size_t Ns = 5;
 
     std::vector<double> times1(M);
-    std::vector< std::vector<double>> times2(Bs, std::vector<double>(M) );
-    std::vector< std::vector<double>> times3(Bs, std::vector<double>(M) );
+    std::vector<std::vector<double>> times2(Bs, std::vector<double>(M));
+    std::vector<std::vector<double>> times3(Bs, std::vector<double>(M));
 
     std::vector<double> A, B, C;
 
@@ -117,7 +117,6 @@ int main(){
         std::cout << "==================================================\n";
     }
 
-
     FILE *fp=nullptr;
     fp = fopen("matrix_matrix_times.txt","w");
     // write header to the file
@@ -138,7 +137,6 @@ int main(){
         fprintf(fp,"\n");
     }
     fclose(fp);
-
 
     return 0;
 }
