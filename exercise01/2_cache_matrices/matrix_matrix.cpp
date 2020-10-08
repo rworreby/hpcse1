@@ -1,6 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <cstdio>
+#include <iostream>
 #include <vector>
 #include <chrono>
 #include <cmath>
@@ -44,7 +42,9 @@ double benchmark_AB(std::vector<double> A, std::vector<double> B, size_t mode, s
 
     // TODO: Check that the matrix size is divided by the blockSize when mode==2 or 3
     if((mode==2 or mode==3) &&  N%blockSize!=0){
-        printf("Error: the size of the matrix (%zu) should be divided by the blockSize variable (%zu).\n",N,blockSize);
+        std::cout << "Error: the size of the matrix " << N
+                  << " should be divided by the blockSize variable "
+                  << blockSize << std::endl;
         exit(1);
     }
 
@@ -63,7 +63,7 @@ double benchmark_AB(std::vector<double> A, std::vector<double> B, size_t mode, s
         auto t2 = std::chrono::system_clock::now();
         times += std::chrono::duration<double>(t2-t1).count();
     }
-    printf("Done in total %9.4fs  --  average %9.4fs\n", times, times/Ns);
+    std::cout << "Done in total " << times << " -- average " << times/Ns << '\n';
 
     return times/Ns;
 
@@ -71,7 +71,7 @@ double benchmark_AB(std::vector<double> A, std::vector<double> B, size_t mode, s
 
 
 int main(){
-    std::vector<int> matrixSize{ 256, 512, 1024, 2048  };
+    std::vector<int> matrixSize{ 256, 512, 1024, 2048 };
     size_t M = matrixSize.size();
 
     std::vector<size_t> blockSize{ 2, 4, 8, 16, 32, 64, 128 };
@@ -87,35 +87,34 @@ int main(){
 
 
     for(size_t m=0; m<M; m++){
-
-        printf("Working with matrices of size %d\n",matrixSize[m]);
-        printf("---------------------------------------------\n");
+        std::cout << "Working with matrices of size " << matrixSize[m] << '\n';
+        std::cout << "---------------------------------------------\n";
 
         size_t N = matrixSize[m];
 
         // TODO: Question 2c: Initialize matrices
         //       store A and B as row major and C as column major
 
-
-
-        printf("Start C=A*B (non optimized).\n");
+        std::cout << "Start C=A*B (non optimized)." << '\n';
         times1[m] = benchmark_AB( A, B, 1, 0, Ns );
 
-        printf("---------------------------------------------\n");
+        std::cout << "---------------------------------------------\n";
 
         for(size_t b=0; b<Bs; b++){
-            printf("Start C=A*B (optimized, row major, block size=%zu).\n", blockSize[b]);
+            std::cout << "Start C=A*B (optimized, row major, block size="
+                      << blockSize[b] << std::endl;
             times2[b][m] = benchmark_AB( A, B, 2, blockSize[b], Ns );
         }
 
-        printf("---------------------------------------------\n");
+        std::cout << "---------------------------------------------\n";
 
         for(size_t b=0; b<Bs; b++){
-            printf("Start C=A*B (optimized, column major, block size=%zu).\n", blockSize[b]);
+            std::cout << "Start C=A*B (optimized, column major, block size="
+                      << blockSize[b] << std::endl;
             times3[b][m] = benchmark_AB( A, C, 3, blockSize[b], Ns );
         }
 
-        printf("==================================================\n");
+        std::cout << "==================================================\n";
     }
 
 

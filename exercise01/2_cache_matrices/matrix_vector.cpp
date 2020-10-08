@@ -1,6 +1,8 @@
 #include <vector>
 #include <chrono>
-#include <math.h>
+#include <cmath>
+#include <cstdlib>
+#include <iostream>
 
 std::vector<double> Ax_row( std::vector<double> &A, std::vector<double> &x ){
 
@@ -41,7 +43,8 @@ double benchmark_Ax( std::vector<double> &A, std::vector<double> &x, bool row_ma
     auto t2 = std::chrono::system_clock::now();
     times += std::chrono::duration<double>(t2-t1).count();
   }
-  printf("Done in total %9.4fs  --  average %9.4fs\n", times, times/Ns);
+  std::cout << "Done in total " << times << " -- average " << times/Ns << '\n';
+
 
   return times/Ns;
 }
@@ -50,7 +53,7 @@ double benchmark_Ax( std::vector<double> &A, std::vector<double> &x, bool row_ma
 int main( int argc, char **argv )
 {
   if( argc<3 ){
-    printf("Usage: %s [N|matrix dimension] [Ns|number of iterations]\n",argv[0]);
+    std::cout << "Usage: " << argv[0] << " [N|matrix dimension] [Ns|number of iterations]" << std::endl;
     exit(0);
   }
 
@@ -62,16 +65,16 @@ int main( int argc, char **argv )
   //       store A as row major and B as column major
 
 
-  printf("Working with matrix of dimension %zu\n",N);
+  std::cout << "Working with matrix of dimension " << N << std::endl;
 
-  printf("A*x (row major).\n");
+  std::cout << "A*x (row major)." << std::endl;
   double times1 = benchmark_Ax(A,x,true,Ns);
 
-  printf("A*x (column major).\n");
+  std::cout << "A*x (column major)." << std::endl;
   double times2 = benchmark_Ax(B,x,false,Ns);
 
-  printf("-----------------\n");
-  printf("Speedup %.8fs\n", times1/times2);
+  std::cout << "-----------------\n";
+  std::cout << "Speedup " << times1/times2 << std::endl;
 
 
   return 0;
