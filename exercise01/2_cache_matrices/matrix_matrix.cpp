@@ -120,20 +120,22 @@ int main(){
     FILE *fp=nullptr;
     fp = fopen("matrix_matrix_times.txt","w");
     // write header to the file
-    std::string header = " N   unopt ";
+    std::string header = "N,unopt";
     for(size_t b=0; b<Bs; b++)
-    header = header + "  br_" + std::to_string(block_size[b]);
+    header = header + ",br_" + std::to_string(block_size[b]);
     for(size_t b=0; b<Bs; b++)
-    header = header + "  bc" + std::to_string(block_size[b]);
+    header = header + ",bc" + std::to_string(block_size[b]);
     header = header + "\n";
     fprintf(fp,"%s",header.c_str());
 
     for(size_t m=0; m<M; m++){
-        fprintf(fp,"%d %lf",matrix_size[m],times1[m]);
-        for(size_t b=0; b<Bs; b++)
-        fprintf(fp," %lf ",times2[b][m]);
-        for(size_t b=0; b<Bs; b++)
-        fprintf(fp," %lf ",times3[b][m]);
+        fprintf(fp,"%d,%lf",matrix_size[m],times1[m]);
+        for(size_t b=0; b<Bs; b++){
+            fprintf(fp,",%lf",times2[b][m]);
+        }
+        for(size_t b=0; b<Bs; b++){
+            fprintf(fp,",%lf",times3[b][m]);
+        }
         fprintf(fp,"\n");
     }
     fclose(fp);
