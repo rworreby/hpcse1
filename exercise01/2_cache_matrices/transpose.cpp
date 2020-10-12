@@ -24,7 +24,7 @@ void transpose_block( std::vector<double> A, size_t block_size ){
 }
 
 
-double benchmark_transpose( std::vector<double> A, size_t mode, size_t block_size, size_t Ns ){
+double benchmark_transpose(std::vector<double> A, size_t mode, size_t block_size, size_t Ns){
 
     size_t N = sqrt(A.size());
     double times = 0;
@@ -102,15 +102,17 @@ int main( )
     fp = fopen("transpose_times.txt","w");
     // write header to the file
     std::string header = "# N   time_unoptimized ";
-    for(size_t b=0; b<B; b++)
-    header = header + "  block_" + std::to_string(block_size[b]);
+    for(size_t b=0; b<B; b++){
+        header = header + "  block_" + std::to_string(block_size[b]);
+    }
     header = header + "\n";
-    fprintf(fp,"%s",header.c_str());
+    fprintf(fp, "%s", header.c_str());
     for(size_t m=0; m<M; m++){
-        fprintf(fp,"%d %lf",matrix_size[m],times1[m]);
-        for(size_t b=0; b<B; b++)
-        fprintf(fp," %lf ",times2[b][m]);
-        fprintf(fp,"\n");
+        fprintf(fp, "%d %lf", matrix_size[m], times1[m]);
+        for(size_t b=0; b<B; b++){
+            fprintf(fp, " %lf ", times2[b][m]);
+        }
+        fprintf(fp, "\n");
     }
     fclose(fp);
 
