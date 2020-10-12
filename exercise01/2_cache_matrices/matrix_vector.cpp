@@ -3,6 +3,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
+#include <fstream>
 
 std::vector<double> Ax_row(std::vector<double> &A, std::vector<double> &x){
 
@@ -29,7 +30,6 @@ std::vector<double> Ax_col(std::vector<double> &A, std::vector<double> &x){
     std::vector<double> y(N, 0);
 
     for (size_t i = 0; i < N; i++) {
-        size_t const i_N{ i*N };
         for (size_t j = 0; j < N; j++) {
             y[j] += A[j*N + i] * x[j];
         }
@@ -82,14 +82,17 @@ int main(int argc, char const *argv[])
     std::cout << "Working with matrix of dimension " << N << std::endl;
 
     std::cout << "A*x (row major)." << std::endl;
-    double times1 = benchmark_Ax(A,x,true,Ns);
+    double times1 = benchmark_Ax(A, x, true, Ns);
 
     std::cout << "A*x (column major)." << std::endl;
-    double times2 = benchmark_Ax(B,x,false,Ns);
+    double times2 = benchmark_Ax(B, x, false, Ns);
 
     std::cout << "-----------------\n";
-    std::cout << "Speedup " << times1/times2 << std::endl;
+    std::cout << "Speedup " << times2/times1 << std::endl;
 
-
+    std::ofstream outfile;
+    outfile.open("row_col_speedup.txt", std::ios_base::app);
+    outfile << times1 << "," << times2 << "," << times2/times1 << std::endl;
+    outfile.close();
     return 0;
 }
