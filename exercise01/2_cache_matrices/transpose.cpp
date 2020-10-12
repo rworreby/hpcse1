@@ -18,12 +18,20 @@ void transpose(std::vector<double> A){
 }
 
 
-void transpose_block( std::vector<double> A, size_t block_size ){
+void transpose_block(std::vector<double> A, size_t block_size){
 
     size_t N = sqrt(A.size());
     std::vector<double> AT(N*N);
-    // TODO: Question 2b: Block matrix transposition
 
+    for (size_t i = 0; i < N/block_size; i++) {
+        for (size_t j = 0; j < N/block_size; j++) {
+            for (size_t k = 0; k < block_size; k++) {
+                for (size_t l = 0; l < block_size; l++) {
+                    AT[j*N + i + l*N + k] = A[i*N + j + k*N + l];
+                }
+            }
+        }
+    }
 }
 
 
