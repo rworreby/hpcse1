@@ -4,24 +4,26 @@
 #include <cstdio>
 #include <cstdlib>
 
-const int MIN_N = 1000 / sizeof(int);      // From 1 KB
-const int MAX_N = 20000000 / sizeof(int);  // to 20 MB.
-const int NUM_SAMPLES = 100;
-const int M = 100000000;    // Operations per sample.
-int a[MAX_N];               // Permutation array.
+const int kMinN = 1000 / sizeof(int); // From 1 KB
+const int kMaxN = 20000000 / sizeof(int); // to 20 MB.
+const int kNumSamples = 100;
+const int kM = 100000000; // Operations per sample.
+int a[kMaxN; // Permutation array.
 
 
 void sattolo(int *p, int N) {
     /*
-     * Generate a random single-cycle permutation using Satollo's algorithm.
-     *
-     * https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle#Sattolo's_algorithm
-     * https://danluu.com/sattolo/
-     */
-    for (int i = 0; i < N; ++i)
+    * Generate a random single-cycle permutation using Satollo's algorithm.
+    *
+    * https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle#Sattolo's_algorithm
+    * https://danluu.com/sattolo/
+    */
+    for (int i = 0; i < N; ++i){
         p[i] = i;
-    for (int i = 0; i < N - 1; ++i)
+    }
+    for (int i = 0; i < N - 1; ++i){
         std::swap(p[i], p[i + 1 + rand() % (N - i - 1)]);
+    }
 }
 
 double measure(int N, int mode) {
@@ -46,17 +48,17 @@ double measure(int N, int mode) {
 
 void run_mode(int mode) {
     /*
-     * Run the measurement for many different values of N and output in a
-     * format compatible with the plotting script.
-     */
+    * Run the measurement for many different values of N and output in a
+    * format compatible with the plotting script.
+    */
     printf("%9s  %9s  %7s  %7s\n", "N", "size[kB]", "t[s]", "op_per_sec[10^9]");
-    for (int i = 0; i < NUM_SAMPLES; ++i) {
+    for (int i = 0; i < kNuSamples; ++i) {
         // Generate N in a logarithmic scale.
-        int N = (int)(MIN_N * std::pow((double)MAX_N / MIN_N,
-                                       (double)i / (NUM_SAMPLES - 1)));
+        int N = (int)(kMinN * std::pow((double)kMaxN / kMinN,
+        (double)i / (kNumSamples - 1)));
         double t = measure(N, mode);
         printf("%9d  %9.1lf  %7.5lf  %7.6lf\n",
-               N, N * sizeof(int) / 1024., t, M / t * 1e-9);
+        N, N * sizeof(int) / 1024., t, kM / t * 1e-9);
         fflush(stdout);
     }
     printf("\n\n");
@@ -74,4 +76,3 @@ int main() {
 
     return 0;
 }
-
