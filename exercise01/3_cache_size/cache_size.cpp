@@ -35,17 +35,16 @@ double measure(int N, int mode) {
     }
     else if (mode == 1) {
         for (size_t i = 0; i < N; i++) {
-            a[i] = i + 1;
+            a[i] = (i + 1) % N;
         }
 
     }
     else if (mode == 2) {
         for (int i = 0; i < N; ++i) {
-            (i + 16 < N) ? a[i] = i + 16 : a[i] = (i + 16) % N;
+            a[i] = (i + 64 / sizeof(int)) % N;
         }
     }
 
-    // TODO: Question 1b: Traverse the list (make M jumps, starting from k = 0) and measure the execution time.
     t_start = std::chrono::steady_clock::now();
 
     unsigned int tmp = 0;
@@ -73,7 +72,7 @@ void run_mode(int mode) {
         );
         double t = measure(N, mode);
         printf("%9d  %9.1lf  %7.5lf  %7.6lf\n",
-               N, N * sizeof(int) / 1024., t, kM / t * 1e-9
+               N, N * sizeof(int) / 1024.0, t, kM / t * 1e-9
               );
         fflush(stdout);
     }
@@ -82,8 +81,8 @@ void run_mode(int mode) {
 
 int main() {
     run_mode(1);
-    // run_mode(1);
-    // run_mode(2);
+    run_mode(1);
+    run_mode(2);
 
     return 0;
 }
