@@ -8,30 +8,84 @@
 void AB(std::vector<double> A, std::vector<double> B){
 
     size_t N = sqrt(A.size());
-    std::vector<double> C(N*N);
+    std::vector<double> C(N*N, 0);
 
-    // TODO: Question 2c: Straightforward matrix-matrix multiplication
+    for (size_t i = 0; i < N; i++) {
+        for (size_t j = 0; j < N; j++) {
+            for (size_t k = 0; k < N; k++) {
+                C[i*N + j] += A[i*N + k] * B[k*N + j];
+            }
+        }
+    }
 
+    std::cout << "AB C[i]" << '\n';
+    for (size_t i = 0; i < 8; i++) {
+        std::cout << C[i] << ' ';
+    }
+    for (size_t i = 0; i < 8; i++) {
+        std::cout << C[N*i] << ' ';
+    }
+    std::cout << '\n';
 }
 
 
 void AB_block_row(std::vector<double> A, std::vector<double> B, size_t block_size){
 
     size_t N = sqrt(A.size());
-    std::vector<double> C(N*N);
+    std::vector<double> C(N*N, 0);
 
-    // TODO: Question 2c: Block matrix-matrix multiplication - B in row major
+    for (size_t bi = 0; bi < N; bi+=block_size) {
+        for (size_t bj = 0; bj < N; bj+=block_size) {
+            for (size_t bk = 0; bk < N; bk+=block_size) {
+                for (size_t i = 0; i < block_size; i++) {
+                    for (size_t j = 0; j < block_size; j++) {
+                        for (size_t k = 0; k < block_size; k++) {
+                            C[(bi+i)*N + bj+j] += A[(bi+i)*N + bk+k] * B[(bk+k)*N + bj+j];
+                        }
+                    }
+                }
+            }
+        }
+    }
 
+    std::cout << "AB_block_row C[i]" << '\n';
+    for (size_t i = 0; i < 8; i++) {
+        std::cout << C[i] << ' ';
+    }
+    for (size_t i = 0; i < 8; i++) {
+        std::cout << C[N*i] << ' ';
+    }
+    std::cout << '\n';
 }
 
 
 void AB_block_col(std::vector<double> A, std::vector<double> B, size_t block_size){
 
     size_t N = sqrt(A.size());
-    std::vector<double> C(N*N);
+    std::vector<double> C(N*N, 0);
 
-    // TODO: Question 2c: Block matrix-matrix multiplication - B in column major
+    for (size_t bi = 0; bi < N; bi+=block_size) {
+        for (size_t bj = 0; bj < N; bj+=block_size) {
+            for (size_t bk = 0; bk < N; bk+=block_size) {
+                for (size_t i = 0; i < block_size; i++) {
+                    for (size_t j = 0; j < block_size; j++) {
+                        for (size_t k = 0; k < block_size; k++) {
+                            C[(bi+i)*N + bj+j] += A[(bi+i)*N + bk+k] * B[(bi+i)*N + bk+k];
+                        }
+                    }
+                }
+            }
+        }
+    }
 
+    std::cout << "AB_block_col C[i]" << '\n';
+    for (size_t i = 0; i < 8; i++) {
+        std::cout << C[i] << ' ';
+    }
+    for (size_t i = 0; i < 8; i++) {
+        std::cout << C[N*i] << ' ';
+    }
+    std::cout << '\n';
 }
 
 
@@ -40,7 +94,6 @@ double benchmark_AB(std::vector<double> A, std::vector<double> B, size_t mode, s
     size_t N = sqrt(A.size());
     double times = 0;
 
-    // TODO: Check that the matrix size is divided by the block_size when mode==2 or 3
     if((mode==2 or mode==3) &&  N%block_size!=0){
         std::cout << "Error: the size of the matrix " << N
                   << " should be divided by the block_size variable "
@@ -50,7 +103,7 @@ double benchmark_AB(std::vector<double> A, std::vector<double> B, size_t mode, s
 
     for(size_t i=0; i<Ns; i++){
         auto t1 = std::chrono::system_clock::now();
-        // TODO: Question 2c: Call the function to be benchmarked
+
         if( mode==1 ){
             AB(A, B);
         }
@@ -60,13 +113,13 @@ double benchmark_AB(std::vector<double> A, std::vector<double> B, size_t mode, s
         else if( mode==3 ){
             AB_block_col(A, B, block_size);
         }
+
         auto t2 = std::chrono::system_clock::now();
         times += std::chrono::duration<double>(t2-t1).count();
     }
     std::cout << "Done in total " << times << " -- average " << times/Ns << '\n';
 
     return times/Ns;
-
 }
 
 
@@ -77,7 +130,7 @@ int main(){
     std::vector<size_t> block_size{ 2, 4, 8, 16, 32, 64, 128 };
     size_t Bs = block_size.size();
 
-    size_t Ns = 5;
+    size_t Ns = 1; //5
 
     std::vector<double> times1(M);
     std::vector<std::vector<double>> times2(Bs, std::vector<double>(M));
@@ -93,7 +146,17 @@ int main(){
         size_t N = matrix_size[m];
 
         // TODO: Question 2c: Initialize matrices
-        //       store A and B as row major and C as column major
+        A.resize(N*N);
+        B.resize(N*N);
+        C.resize(N*N);
+
+        for(size_t i = 0; i < N; ++i){
+            for(size_t j = 0; j < N; ++j){
+                A[i*N + j] = 2*i + j;
+                B[i*N + j] = 2*i + j;
+                C[j*N + i] = 2*i + j;
+            }
+        }
 
         std::cout << "Start C=A*B (non optimized)." << '\n';
         times1[m] = benchmark_AB( A, B, 1, 0, Ns );
