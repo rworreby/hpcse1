@@ -8,7 +8,7 @@ const int kMinN = 1000 / sizeof(int); // From 1 KB
 const int kMaxN = 20000000 / sizeof(int); // to 20 MB.
 const int kNumSamples = 100;
 const int kM = 100000000; // Operations per sample.
-int a[kMaxN; // Permutation array.
+int a[kMaxN]; // Permutation array.
 
 
 void sattolo(int *p, int N) {
@@ -27,23 +27,34 @@ void sattolo(int *p, int N) {
 }
 
 double measure(int N, int mode) {
+    std::chrono::time_point<std::chrono::steady_clock> t_start, t_end;
     if (mode == 0) {
-        // TODO: Question 1b: Use the sattolo function to generate a random one-cycle permutation.
+        int *p = a;
+        sattolo(p, N);
 
-    } else if (mode == 1) {
-        // TODO: Question 1c: Initialize the permutation such that k jumps by 1 item every step (cyclically).
+    }
+    else if (mode == 1) {
+        for (size_t i = 0; i < N; i++) {
+            a[i] = i + 1;
+        }
 
-    } else if (mode == 2) {
-        // TODO: Question 1d: Initialize the permutation such that k jumps by 64 bytes (cyclically).
-
+    }
+    else if (mode == 2) {
+        for (int i = 0; i < N; ++i) {
+            (i + 16 < N) ? a[i] = i + 16 : a[i] = (i + 16) % N;
+        }
     }
 
     // TODO: Question 1b: Traverse the list (make M jumps, starting from k = 0) and measure the execution time.
+    t_start = std::chrono::steady_clock::now();
 
+    unsigned int tmp = 0;
+    for(unsigned int i = 0; i < kM; ++i) {
+        tmp = a[tmp];
+    }
 
-
-    // TODO: Question 1b: Return execution time in seconds.
-    return 0.1;
+    t_end = std::chrono::steady_clock::now();
+    return static_cast<std::chrono::duration<double>>(t_end - t_start).count();
 }
 
 void run_mode(int mode) {
@@ -52,27 +63,27 @@ void run_mode(int mode) {
     * format compatible with the plotting script.
     */
     printf("%9s  %9s  %7s  %7s\n", "N", "size[kB]", "t[s]", "op_per_sec[10^9]");
-    for (int i = 0; i < kNuSamples; ++i) {
+    for (size_t i = 0; i < kNumSamples; ++i) {
         // Generate N in a logarithmic scale.
-        int N = (int)(kMinN * std::pow((double)kMaxN / kMinN,
-        (double)i / (kNumSamples - 1)));
+        size_t N = static_cast<int>(kMinN *
+            std::pow(
+                static_cast<double>(kMaxN) / static_cast<double>(kMinN),
+                static_cast<double>(i) / static_cast<double>(kNumSamples - 1)
+            )
+        );
         double t = measure(N, mode);
         printf("%9d  %9.1lf  %7.5lf  %7.6lf\n",
-        N, N * sizeof(int) / 1024., t, kM / t * 1e-9);
+               N, N * sizeof(int) / 1024., t, kM / t * 1e-9
+              );
         fflush(stdout);
     }
     printf("\n\n");
 }
 
 int main() {
-    // Question 1b:
-    run_mode(0);   // Random.
-
-    // TODO: Enable for Question 1c:
-    // run_mode(1);   // Sequential (jump by sizeof(int) bytes).
-
-    // TODO: Enable for Question 1d:
-    // run_mode(2);   // Sequential (jump by cache line size, i.e. 64 bytes).
+    run_mode(1);
+    // run_mode(1);
+    // run_mode(2);
 
     return 0;
 }
