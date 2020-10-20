@@ -1,12 +1,12 @@
-CXX = g++
+CXX = c++
 CXXFLAGS = -O3 -Wall -Wextra
 
 all: main
 
 main: main.cpp Makefile
-	$(CXX) -std=c++11 -fopenmp $(CXXFLAGS) main.cpp -o main
+	$(CXX) -std=c++20 -fopenmp $(CXXFLAGS) main.cpp -o main
 
-run: 
+run:
 	./varym $(N)
 
 plot:
