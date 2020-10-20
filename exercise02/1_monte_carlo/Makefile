@@ -1,5 +1,5 @@
 CXX = c++
-CXXFLAGS = -O3 -Wall -Wextra
+CXXFLAGS = -O3 -Wall -Wextra -Wpedantic
 
 all: main
 
