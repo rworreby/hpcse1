@@ -34,7 +34,29 @@ double C0(size_t n)
 // TODO: Question 1a.1
 double C1(size_t n)
 {
-    return 1.0;
+    double result{ 0.0 };
+    #pragma omp parallel
+    {
+        const int t_id{ omp_get_thread_num(); }
+
+        // 0 seed in c++ != sys clock init, but instead seed(0) == seed(1)
+        // --> Skip 0 seed
+        std::default_random_engine g(t_id + 1);
+        // uniform distribution in [0, 1]
+        std::uniform_real_distribution<double> u;
+
+        double sum{ 0.0 };
+        #pragma omp for nowait
+        for (size_t i = 0; i < n; ++i) {
+            double x = u(g);
+            double y = u(g);
+            sum += F(x, y);
+        }
+
+        #pragma atomic
+        result += sum / n;
+
+    }
 }
 
 // Method 2, only `omp parallel for reduction`, arrays without padding
