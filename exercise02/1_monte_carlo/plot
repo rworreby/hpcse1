@@ -1,0 +1,22 @@
+#!/bin/bash
+
+gnuplot << EOF
+
+set terminal pngcairo;
+
+set xlabel 'threads';
+set ylabel 'time [s]';
+set output 'results.png';
+set macro
+set grid
+set logscale x 2
+set logscale y 2
+set key Left
+d='out/'
+plot \
+  d."m0" u 1:2 w lp lw 3 pt 7 t 'm=0, serial', \
+  d."m1" u 1:2 w lp lw 3 pt 7 t 'm=1, no arrays', \
+  d."m2" u 1:2 w lp lw 3 pt 7 t 'm=2, no padding', \
+  d."m3" u 1:2 w lp lw 3 pt 7 t 'm=3, padding', \
+
+EOF
