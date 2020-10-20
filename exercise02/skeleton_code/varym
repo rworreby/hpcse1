@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -eu
+
+o=out
+
+rm -f $o/m*
+mkdir -p $o
+
+for m in 0 1 2 3 ; do
+  c="./varynt $m $@ > $o/m$m"
+  echo "$c" >&2
+  eval "$c"
+done

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -eu
+
+maxnt=${OMP_NUM_THREADS:-4}
+
+for nt in `seq 1 $maxnt` ; do
+  c="OMP_NUM_THREADS=$nt ./main $@"
+  echo "$c" >&2
+  o=`eval "$c"`
+  wt=`echo "$o" | grep time | cut -d' ' -f2`
+  echo "$nt" "$wt"
+done
