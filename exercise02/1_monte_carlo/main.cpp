@@ -2,7 +2,6 @@
 #include <random>
 #include <iostream>
 #include <cstdlib>
-#include <number>
 
 // Integrand
 inline double F(double x, double y)
@@ -31,13 +30,12 @@ double C0(size_t n)
 }
 
 // Method 1: openmp, no arrays
-// TODO: Question 1a.1
 double C1(size_t n)
 {
     double result{ 0.0 };
     #pragma omp parallel
     {
-        const int t_id{ omp_get_thread_num(); }
+        const int t_id{ omp_get_thread_num() };
 
         // 0 seed in c++ != sys clock init, but instead seed(0) == seed(1)
         // --> Skip 0 seed
@@ -53,24 +51,58 @@ double C1(size_t n)
             sum += F(x, y);
         }
 
-        #pragma atomic
+        #pragma omp atomic
         result += sum / n;
 
     }
+    return result;
 }
 
 // Method 2, only `omp parallel for reduction`, arrays without padding
-// TODO: Question 1a.2
 double C2(size_t n)
 {
-    return 1.0;
+    double result{ 0.0 };
+    int const k_max_cores{ omp_get_max_threads() };
+
+    std::default_random_engine* rng = new std::default_random_engine[k_max_cores];
+    for (int i = 0; i < k_max_cores; i++) {
+        rng[i] = std::default_random_engine(i + 1);
+    }
+
+    #pragma omp parallel for reduction(+: result)
+    for (size_t i = 0; i < n; ++i) {
+        int const t_id { omp_get_thread_num() };
+        std::uniform_real_distribution<double> u;
+        double x = u(rng[t_id]);
+        double y = u(rng[t_id]);
+        result += F(x, y);
+    }
+
+    return result / n;
 }
 
 // Method 3, only `omp parallel for reduction`, arrays with padding
-// TODO: Question 1a.3
 double C3(size_t n)
 {
-    return 1.0;
+    double result{ 0.0 };
+    int const k_max_cores{ omp_get_max_threads() };
+    //int const k_padding{ 64 / sizeof(std::default_random_engine) };
+    int const k_stepsize{ 64 };
+
+    auto rng = new std::default_random_engine[k_max_cores][k_stepsize];
+    for (int i = 0; i < k_max_cores; i++) {
+        rng[i][0] = std::default_random_engine(i + 1);
+    }
+
+    #pragma omp parallel for reduction(+: result)
+    for (size_t i = 0; i < n; ++i) {
+        int const t_id { omp_get_thread_num() };
+        std::uniform_real_distribution<double> u;
+        double x = u(rng[t_id][0]);
+        double y = u(rng[t_id][0]);
+        result += F(x, y);
+    }
+    return result / n;
 }
 
 // Returns integral of F(x,y) over unit square (0 < x < 1, 0 < y < 1).
@@ -115,7 +147,7 @@ int main(int argc, char* argv[])
     // number of samples
     size_t n = (argc > 2 ? atoi(argv[2]) : ndef);
     // reference solution
-    double ref = std::numbers::pi;
+    double ref = 3.14159265358979323846;
 
     double wt0 = omp_get_wtime();
     double res = C(n, m);
