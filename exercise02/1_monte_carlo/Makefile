@@ -1,10 +1,10 @@
 CXX = c++
-CXXFLAGS = -O3 -Wall -Wextra -Wpedantic
+CXXFLAGS = -O0 -Wall -Wextra -Wpedantic
 
 all: main
 
 main: main.cpp Makefile
-	$(CXX) -std=c++20 -fopenmp $(CXXFLAGS) main.cpp -o main
+	$(CXX) -std=c++17 -fopenmp $(CXXFLAGS) main.cpp -o main
 
 run:
 	./varym $(N)
