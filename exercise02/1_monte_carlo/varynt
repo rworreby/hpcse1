@@ -2,7 +2,7 @@
 
 set -eu
 
-maxnt=${OMP_NUM_THREADS:-4}
+maxnt=${OMP_NUM_THREADS:-24}
 
 for nt in `seq 1 $maxnt` ; do
   c="OMP_NUM_THREADS=$nt ./main $@"
