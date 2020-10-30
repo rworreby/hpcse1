@@ -16,7 +16,10 @@
 # The script generates a grade.txt file. Submit your grade on Moodle:
 # https://moodle-app2.let.ethz.ch/course/view.php?id=13666
 
-python grade.py \
-    --question1 0 \
-    --question2 0 \
-    --question3 0
+python3 grade.py \
+    --question1 35 \
+    --comment1 'Perfect' \
+    --question2 20 \
+    --comment2 'Solution is different from master solution but still correct.' \
+    --question3 18 \
+    --comment3 '-5 for missing the need of a barrier after do_work in task 3)a). Bonus of 3 points for finding an issue that was not caught by the master solution.' \
