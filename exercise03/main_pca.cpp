@@ -74,10 +74,10 @@ int main (int argc, char** argv)
   double time_end;
 
   /////////////////////////////////////////////////////////////////////////
-  //    1. Transpose data, i.e. convert it from row major to column major for 
+  //    1. Transpose data, i.e. convert it from row major to column major for
   //    easier future computation
   double* data_T = new double[N*D];
-  
+
   utils::transposeData(data_T, data, N, D); // TODO: Implement the function found in utils
 
   /////////////////////////////////////////////////////////////////////////
@@ -85,7 +85,7 @@ int main (int argc, char** argv)
   time_start = omp_get_wtime();
   double* data_mean = new double[D];
   double* data_std = new double[D];
- 
+
   utils::computeMean(data_mean, data_T, N, D);   // TODO: Compute mean in utils
   utils::computeStd(data_std, data_mean, data_T, N, D); // TODO: Compute standard deviation in utils
 
@@ -140,7 +140,7 @@ int main (int argc, char** argv)
   delete[] work;
   work = new double[lwork];
 
-  // Call dsyev_() a second time with the optimaly sized work array to compute eigen-vectors and eigen-values 
+  // Call dsyev_() a second time with the optimaly sized work array to compute eigen-vectors and eigen-values
 
   // TODO: Second call to dsyev_()
 
@@ -170,7 +170,7 @@ int main (int argc, char** argv)
   time_start = omp_get_wtime();
 
   double* data_reduced = new double[N * num_comp]; // saved in normal row major order (not transpose!)
-  utils::reduceDimensionality(data_reduced, V, data_T, N, D, num_comp);   // TODO: 
+  utils::reduceDimensionality(data_reduced, V, data_T, N, D, num_comp);   // TODO:
 
   // SAVE THE DATA TO FILE
   utils::writeRowMajorMatrixToFile("./results/data/"+data_name+method_name+"_data_reduced.txt", data_reduced, num_comp, N);
