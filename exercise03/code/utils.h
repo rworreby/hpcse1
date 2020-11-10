@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 #include <cmath>
-#include <cassert> /* assert */
+#include <cassert>
 
 namespace utils{
 
@@ -160,7 +160,6 @@ namespace utils{
   }
 
 
-
   double computeArrayMatrixDifferenceNorm(const double* const M1, const double* const M2, const int D)
   {
     double norm_ = 0.0;
@@ -173,7 +172,6 @@ namespace utils{
     norm_=std::sqrt(norm_);
     return norm_;
   }
-
 
 
   int writeVectorToFile(const std::string &data_path,
@@ -192,6 +190,7 @@ namespace utils{
       return 0;
     }
 
+
     void reverseArray(double* data, const int D)
     {
         int DD = (int)std::ceil((double)D / 2.0);
@@ -202,6 +201,7 @@ namespace utils{
         }
     }
 
+
     void transposeData(double* data_T, const double* const data, const int N, const int D)
     {
         // Data are given in the form data(n,d)=data[n*D+d]
@@ -210,12 +210,10 @@ namespace utils{
         // (e.g. calculation of the mean)
 
         // TODO:
-        for(int d)
-        for(int n)
-        data_T[d*N+n] = 
+        //for(int d)
+        //for(int n)
+        //data_T[d*N+n] =
 
-
-        // :TODO
     }
 
     void computeMean(double* mean, const double* const data_T, const int N, const int D)
@@ -226,8 +224,6 @@ namespace utils{
         // TODO:
 
 
-
-        // :TODO
     }
 
     void computeStd(double* std, const double* const mean, const double* const data_T, const int N, const int D)
@@ -238,11 +234,6 @@ namespace utils{
         // TODO:
 
 
-
-
-
-
-        // :TODO
     }
 
     void standardizeColMajor(double* data_T, const double* const mean, const double* const std, const int N, const int D)
@@ -256,10 +247,6 @@ namespace utils{
         // TODO:
 
 
-
-
-
-        // :TODO
     }
 
     void centerDataColMajor(double* data_T, const double* const mean, const int N, const int D)
@@ -271,10 +258,6 @@ namespace utils{
         // TODO:
 
 
-
-
-
-        // :TODO
     }
 
     void standardizeRowMajor(double* data, const double* const mean, const double* const std, const int N, const int D)
@@ -315,20 +298,6 @@ namespace utils{
         // TODO:
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // :TODO
     }
 
     void getEigenvectors(double* V, const double* const C, const int NC, const int D)
@@ -341,10 +310,6 @@ namespace utils{
         // TODO:
 
 
-
-
-
-        // TODO
     }
 
     void reduceDimensionality(double* data_red, const double* const V, const double* const data_T, const int N, const int D, const int NC)
@@ -379,18 +344,7 @@ namespace utils{
 
 
 
-
-
-
-
-
-
-
-
-        // :TODO
     }
-
-
 
 
     void reconstructDatasetColMajor(double* data_rec, const double* const V, const double* const data_red, const int N, const int D, const int NC)
@@ -420,6 +374,7 @@ namespace utils{
         }
     }
 
+
     void inverseStandarizeDatasetRowMajor(double* data_rec, const double* const mean, const double* const std, const int N, const int D)
     {
         // ROW MAJOR
@@ -433,6 +388,7 @@ namespace utils{
         }
     }
 
+
     void inverseCenterDatasetRowMajor(double* data_rec, const double* const mean, const int N, const int D)
     {
         // ROW MAJOR
@@ -445,7 +401,6 @@ namespace utils{
             }
         }
     }
-
 }
 
 #endif /* UTILS_H_UY1M7JFH */
