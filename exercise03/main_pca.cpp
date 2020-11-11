@@ -1,4 +1,3 @@
-
 // #include "network/Network.h"
 // #include "network/Optimizer.h"
 
@@ -24,23 +23,21 @@
 int main (int argc, char** argv)
 {
 
-  // DATA PARAMETERS
   int D = 2;  // Data dimension
   int N = 1024; // Number of training samples
   int num_comp = 2; // Number of principal components
-  std::string data_name = "2D"; // Dataset name
-  std::string scaler = "center"; // Which scaler to use
-  std::string method_name = "PCA"; // Method name
-  std::string data_path = "./data/"+data_name+"_dataset.txt"; // Data path
+  std::string data_name = "2D";
+  std::string scaler = "center";
+  std::string method_name = "PCA";
+  std::string data_path = "./data/"+data_name+"_dataset.txt";
 
-  // // DATA PARAMETERS
   // int D = 1850;  // Data dimension
   // int N = 1280; // Number of training samples
   // int num_comp = 10; // Number of principal components
-  // std::string data_name = "faces"; // Dataset name
-  // std::string scaler = "standard"; // Which scaler to use
-  // std::string method_name = "PCA"; // Method name
-  // std::string data_path = "./data/"+data_name+"_dataset.txt"; // Data path
+  // std::string data_name = "faces";
+  // std::string scaler = "standard";
+  // std::string method_name = "PCA";
+  // std::string data_path = "./data/"+data_name+"_dataset.txt";
 
   ///////////////////////////////////////////////////////////////////////////
   // Reading data. The data dimension is N x D.  The returned pointer points
