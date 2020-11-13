@@ -11,8 +11,8 @@ from sklearn.decomposition import PCA
 if __name__ == "__main__":
   method = "PCA_PYTHON" # REFERENCE SOLUTION (COMPARE YOUR CODE WITH THIS)
 
-  for dataset in ["2D", "faces"]:
-  # for dataset in ["faces"]:
+  #for dataset in ["2D", "faces"]:
+  for dataset in ["faces"]:
   # for dataset in ["2D"]:
 
     # dataset = "2D"

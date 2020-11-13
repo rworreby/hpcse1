@@ -9,13 +9,13 @@ from sklearn.decomposition import PCA
 if __name__ == "__main__":
 
   # SELECT YOUR METHOD:
-  method = "PCA_PYTHON" # REFERENCE SOLUTION (COMPARE YOUR CODE WITH THIS)
-  # method = "PCA" # YOUR CPP IMPLEMENTATION
-  # method = "OJA" # YOUR CPP IMPLEMENTATION
+  # method = "PCA_PYTHON" # REFERENCE SOLUTION (COMPARE YOUR CODE WITH THIS)
+  #method = "PCA" # YOUR CPP IMPLEMENTATION
+  method = "OJA" # YOUR CPP IMPLEMENTATION
 
   # SELECT THE DATASET
-  dataset = "2D"
-  # dataset = "faces"
+  # dataset = "2D"
+  dataset = "faces"
 
   if dataset == "2D":
     DIM = 2
@@ -145,7 +145,7 @@ if __name__ == "__main__":
     # print(data_rec.mean())
     # print(data_rec.std())
 
-    
+
     # RESHAPING
     data = data.reshape((-1,H,W))
     data_rec = data_rec.reshape((-1,H,W))
@@ -157,12 +157,3 @@ if __name__ == "__main__":
     fig.suptitle('METHOD {:}'.format(method))
     plt.savefig("figures/{:}_{:}_reconstruction.pdf".format(dataset, method))
     plt.close()
-
-
-
-
-
-
-
-
-

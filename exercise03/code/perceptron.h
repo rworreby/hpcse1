@@ -100,10 +100,7 @@ public:
         for (int k = 0; k < batch_size; ++k) {
             for (int i = 0; i < nInputs; ++i) {
                 for (int o = 0; o < nOutputs; ++o) {
-                    // TODO:
-
-
-                    // :TODO
+                    output[o + k*nOutputs] += weights[o + i*nOutputs] * input[i + k*nInputs];
                 }
             }
         }
@@ -132,8 +129,16 @@ public:
     void ojasRuleGradient(const double *const input, const int batch_size) {
         forward(input, batch_size);
         memset(gradient, 0.0, sizeof(double) * nOutputs * nInputs);
-        // TODO:
 
+        for (int k = 0; k < batch_size; ++k) {
+            for (int i = 0; i < nInputs; ++i) {
+                for (int o = 0; o < nOutputs; ++o) {
+                    gradient[o + i * nOutputs] +=
+                        output[o + k * nOutputs] * (input[i + k*nInputs] -
+                        weights[o + i*nOutputs] * output[o + k*nOutputs]);
+                }
+            }
+        }
 
         for (int i = 0; i < nInputs * nOutputs; ++i) {
             gradient[i] = gradient[i] / batch_size;
@@ -143,8 +148,19 @@ public:
     void sangersRuleGradient(const double *const input, const int batch_size) {
         forward(input, batch_size);
         memset(gradient, 0.0, sizeof(double) * nOutputs * nInputs);
-        // TODO:
 
+        for (int k = 0; k < batch_size; ++k) {
+            for (int i = 0; i < nInputs; ++i) {
+                for (int o = 0; o < nOutputs; ++o) {
+                    double sum{ 0.0 };
+                    for (int j = 0; j < o; j++) {
+                        sum += weights[j + i*nOutputs] * output[j + k*nOutputs];
+                    }
+                    gradient[o + i * nOutputs] +=
+                        output[o + k * nOutputs] * (input[i + k*nInputs] - sum);
+                }
+            }
+        }
 
         for (int i = 0; i < nInputs * nOutputs; ++i) {
             gradient[i] = gradient[i] / batch_size;
@@ -191,9 +207,24 @@ public:
         memset(eigenvalues, 0.0, sizeof(double) * nOutputs);
         memset(mean, 0.0, sizeof(double) * nOutputs);
 
-        // TODO:
+        for (int k = 0; k < batch_size; ++k) {
+            for (int o = 0; o < nOutputs; ++o) {
+                mean[o] += output[o + k*nOutputs];
+            }
+        }
 
+        for (int o = 0; o < nOutputs; ++o) {
+            mean[o] /= batch_size;
+        }
 
+        for (int o = 0; o < nOutputs; ++o) {
+            double sum{ 0.0 };
+            for (int k = 0; k < batch_size; ++k){
+                double x_norm{ output[o + k*nOutputs] - mean[o] };
+                sum += x_norm * x_norm;
+            }
+            eigenvalues[o] = sum / (batch_size - 1);
+        }
     }
 
     void printWeights()

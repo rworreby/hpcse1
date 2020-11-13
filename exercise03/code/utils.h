@@ -1,13 +1,14 @@
 #ifndef UTILS_H_UY1M7JFH
 #define UTILS_H_UY1M7JFH
 
-#include <iostream>
+#include <cassert>
+#include <cmath>
 #include <fstream>
+#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include <cmath>
-#include <cassert>
+
 
 namespace utils{
 
@@ -208,12 +209,12 @@ namespace utils{
         // This function transposes the data to data(n,d)=data_T[d*N+n]
         // for the purpose of more efficient memory layout
         // (e.g. calculation of the mean)
-
-        // TODO:
-        //for(int d)
-        //for(int n)
-        //data_T[d*N+n] =
-
+        #pragma omp parallel for
+        for(int d = 0; d < D; ++d){
+            for(int n = 0; n < N; ++n){
+                data_T[d*N+n] = data[n*D+d];
+            }
+        }
     }
 
     void computeMean(double* mean, const double* const data_T, const int N, const int D)
@@ -221,9 +222,14 @@ namespace utils{
         // Calculation of the mean (over samples) of the dataset
         // data(n,d)=data_T[d*N+n]
 
-        // TODO:
-
-
+        double sum{ 0.0 };
+        for(int d = 0; d < D; ++d){
+            for(int n = 0; n < N; ++n){
+                sum += data_T[d*N+n];
+            }
+            mean[d] = sum / N;
+            sum = 0;
+        }
     }
 
     void computeStd(double* std, const double* const mean, const double* const data_T, const int N, const int D)
@@ -232,37 +238,49 @@ namespace utils{
         // data(n,d)=data_T[d*N+n]
 
         // TODO:
-
-
+        double total_sd{ 0.0 };
+        for(int d = 0; d < D; ++d){
+            for(int n = 0; n < N; ++n){
+                total_sd += (data_T[d*N+n] - mean[d]) * (data_T[d*N+n] - mean[d]);
+            }
+            std[d] = std::sqrt(total_sd / (N - 1));
+            total_sd = 0;
+        }
     }
 
     void standardizeColMajor(double* data_T, const double* const mean, const double* const std, const int N, const int D)
     {
-        std::cout << "Scaling - zero mean, unit variance." << std::endl;
+        std::cout << "Standardizing - zero mean, unit variance." << std::endl;
         // COL MAJOR IMPLEMENTATION
         // Data normalization (or standardization)
         // Transormation of the data to zero mean unit variance.
         // data(n,d)=data_T[d*N+n]
 
-        // TODO:
-
-
+        #pragma omp parallel for
+        for(int d = 0; d < D; ++d){
+            for(int n = 0; n < N; ++n){
+                data_T[d*N+n] = (data_T[d*N+n] - mean[d]) / std[d];
+            }
+        }
     }
 
     void centerDataColMajor(double* data_T, const double* const mean, const int N, const int D)
     {
-        std::cout << "Centering data..." << std::endl;
+        std::cout << "Centering data - subtracting mean" << std::endl;
         // COL MAJOR IMPLEMENTATION
         // data(n,d)=data_T[d*N + n]
 
-        // TODO:
-
-
+        #pragma omp parallel for
+        for(int d = 0; d < D; ++d){
+            for(int n = 0; n < N; ++n){
+                data_T[d*N+n] = data_T[d*N+n] - mean[d];
+            }
+        }
     }
 
     void standardizeRowMajor(double* data, const double* const mean, const double* const std, const int N, const int D)
     {
-        std::cout << "Scaling - zero mean, unit variance." << std::endl;
+        std::cout << "Standardizing - zero mean, unit variance." << std::endl;
         // ROW MAJOR IMPLEMENTATION
         // Data normalization (or standardization)
         // Transormation of the data to zero mean unit variance.
@@ -295,21 +313,36 @@ namespace utils{
         // For the covariance follow the row major notation
         // C(j,k)=C[j*D+k]
 
-        // TODO:
+        double const dim_factor{ 1.0 / (N - 1) };
 
+        double total{ 0.0 };
 
+        for (int s = 0; s < D; ++s) {
+            for (int d = 0; d <= s; ++d) {
+                for (int n = 0; n < N; n++) {
+                    total += data_T[s*N+n]  * data_T[d*N+n];
+                }
+                C[s*D+d] = dim_factor * total;
+                total = 0;
+            }
+        }
     }
 
     void getEigenvectors(double* V, const double* const C, const int NC, const int D)
     {
         // Extracting the last rows from matrix C containig the PCA components (eigenvectors of the covariance matrix) that explain the highest variance.
-        // Be carefull to extract them in order of descenting variance.
+        // Be careful to extract them in order of descending variance.
         // C(j,d)=C[j*D+d] # ROW MAJOR
         // V(k,d)=V[k*D+d] # ROW MAJOR
 
-        // TODO:
 
 
+        #pragma omp parallel for
+        for (int j = 0; j < NC; ++j) {
+            for (int i = 0; i < D; ++i) {
+                V[j*D+i] = C[(D-1-j)*D + i];
+            }
+        }
     }
 
     void reduceDimensionality(double* data_red, const double* const V, const double* const data_T, const int N, const int D, const int NC)
@@ -340,10 +373,19 @@ namespace utils{
         // data_red(n,c)=data_red[c + n*NC], C<<D   # ROW MAJOR
         // data_rec(n,d)=data_rec[d + n*D]          # ROW MAJOR
 
-        // TODO:
-
-
-
+        #pragma omp parallel for
+        for (int d = 0; d < D; ++d) // Iterate through all dimensions
+        {
+            for (int n = 0; n < N; ++n) // Iterate through all data
+            {
+                double sum = 0.0;
+                for (int c = 0; c < NC; ++c) // Iterate through components
+                {
+                    sum += V[d + c*D] * data_red[c + n*NC];
+                }
+                data_rec[d + n*D] = sum;
+            }
+        }
     }
 
 
@@ -365,9 +407,7 @@ namespace utils{
                 double sum = 0.0;
                 for (int c = 0; c < NC; ++c) // Iterate through components
                 {
-                    // TODO: Fill the line here
                     sum += V[c + d*NC] * data_red[c + n*NC];
-                    // TODO:
                 }
                 data_rec[d + n*D] = sum;
             }
