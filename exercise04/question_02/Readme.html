@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Readme</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../.style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="overview">Overview</h1>
+<p>In this task we implement a matrix-matrix multiplication kernel (GEMM). We will study the Intel SPMD program compiler (ISPC) to generate vectorized code for us (you will appreciate this if you found the previous manual vectorization of the reduction kernel already tedious).</p>
+<h1 id="workflow">Workflow</h1>
+<ol type="1">
+<li><p>Start with the serial implementation of the GEMM kernel in <code>gemm.cpp</code>. This will be your baseline you test your ISPC implementation against (<code>gemm_serial</code>). You can compile and test your serial implementation with</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="fu">make</span> debug=true gemm_serial</a></code></pre></div>
+<p>you may omit <code>debug=true</code> if you do not need the debug symbols in your code. Your implementation should return a norm of truth of <code>255.966</code> for double precision data and <code>256.211</code> for single precision data.</p></li>
+<li><p>To start working with ISPC, you need to install it first. The exercise provides a 64bit Linux binary which will work on euler or in your 64bit Linux distribution. To install <code>ispc</code> run the command</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="fu">make</span> install_ispc_linux_x86_64</a></code></pre></div>
+<p>See the <code>Makefile</code> for more information. After <code>ispc</code> has been installed, you need to either logout and login again to euler or source your <code>~/.bashrc</code> file again. To do this, run</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="bu">source</span> ~/.bashrc</a></code></pre></div>
+<p>Have a look at the output of <code>ispc --help</code>.</p></li>
+<li><p>Check the lecture slides and the <a href="https://ispc.github.io/ispc.html#getting-started-with-ispc">getting started section</a> on the ISPC documentation page to figure out the function signature of an exported ISPC function. You also need to understand the <code>varying</code> and <code>uniform</code> rate qualifiers when working with ISPC. Complete the function signature of the ISPC kernel in <code>gemm.ispc</code>. Next, complete the <code>Makefile</code> to establish the foundation to compile your ISPC code. Have a look at <code>ispc --help</code>, especially the <code>--arch</code> and <code>--target</code> options. We want to target <code>SSE2</code> and <code>AVX2</code> extended instruction sets. After completion, you should be ready to successfully execute the main target (since it is the default, you may omit <code>gemm</code>)</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="fu">make</span> gemm</a></code></pre></div>
+<p>Now you are at the point to start working on the ISPC implementation of the GEMM kernel. Write your ISPC function body in the file <code>gemm.ispc</code>. Use your serial implementation as a guide. This is the core part of this exercise.</p></li>
+<li><p>Compile your application code and link to the ISPC generated code with</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="fu">make</span> gemm</a></code></pre></div>
+<p>you may want to use <code>debug=true</code> while developing your code. To check the benchmark results, you can use the <code>job</code> target in the <code>Makefile</code>. It will compile your code first if there were changes before the job is submitted. For convenience, you may want to work on an interactive node on euler such that you do not need to submit jobs all the time (and wait for them to complete). You can check out a single core on a node on euler for interactive work (for 1 hour) using</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="ex">bsub</span> -n 1 -W 01:00 -Is bash</a></code></pre></div>
+<p>If all went well, your vectorized implementations should be <em>faster</em> than your serial baseline.</p></li>
+</ol>
+</body>
+</html>
