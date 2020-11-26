@@ -23,34 +23,34 @@ void reduce_manual(int rank, int size, long& sum){
 
 int main(int argc, char** argv){
     const long N = 1000000;
-    
+
     // Initialize MPI
     int rank, size;
     // TODO c): Initialize MPI and obtain the rank and the number of processes (size)
-    
+
     // -------------------------
     // Perform the local sum:
     // -------------------------
     long sum = 0;
-    
+
     // Determine work load per rank
     long N_per_rank = N / size;
-    
+
     // TODO d): Determine the range of the subsum that should be calculated by this rank.
     long N_start;
     long N_end;
-    
+
     // N_start + (N_start+1) + ... + (N_start+N_per_rank-1)
     for(long i = N_start; i <= N_end; ++i){
         sum += i;
     }
-    
+
     // -------------------------
     // Reduction
     // -------------------------
     reduce_mpi(rank, sum);
     //reduce_manual(rank, size, sum);
-    
+
     // -------------------------
     // Print the result
     // -------------------------
@@ -60,6 +60,6 @@ int main(int argc, char** argv){
     }
     // Finalize MPI
     // TODO c): Finalize MPI
-    
+
     return 0;
 }
