@@ -16,7 +16,6 @@ void reduce_mpi(const int rank, long& sum){
 
 // PRE: size is a power of 2 for simplicity
 void reduce_manual(int rank, int size, long& sum){
-    // TODO f): Implement a tree based reduction using blocking point-to-point communication.
     for (int i = size/2; i > 0; i /= 2) {
         long int other{ 0 };
         if (rank < i){
@@ -33,7 +32,6 @@ void reduce_manual(int rank, int size, long& sum){
 int main(int argc, char** argv){
     const long N = 1000000000;
 
-    // Initialize MPI
     int rank, size;
     MPI_Init(&argc, &argv);
 
