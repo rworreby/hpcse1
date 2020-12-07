@@ -182,19 +182,15 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    // TODO: Start-up the MPI environment and determine this process' myRank ID
-    // as well as the total number of processes (=ranks) involved in the
-    // communicator
 
     int rank,size;
     rank = 0;
     size = 1;
-    // *** start MPI part ***
 
+    MPI_Init(&argc, &argv);
 
-
-
-    // *** end MPI part ***
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
 
     const double D = std::stod(argv[1]);
     const double L = std::stod(argv[2]);
@@ -212,9 +208,8 @@ int main(int argc, char* argv[])
     system.compute_histogram();
     if (rank == 0)
         system.write_diagnostics("diagnostics.dat");
-    // TODO: Shutdown the MPI environment
-    // *** start MPI part ***
 
-    // *** end MPI part ***
+    MPI_Finalize();
+
     return 0;
 }
