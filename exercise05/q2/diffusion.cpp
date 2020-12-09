@@ -110,8 +110,9 @@ struct Diffusion
     void write_diagnostics(const std::string& filename) const
     {
         std::ofstream out_file(filename, std::ios::out);
+        out_file << "t,amount" << '\n';
         for (const Diagnostics& d : diag)
-            out_file << d.time << ' ' << d.concentration << '\n';
+            out_file << d.time << ',' << d.concentration << '\n';
         out_file.close();
     }
 
@@ -194,6 +195,7 @@ int main(int argc, char* argv[])
     }
 
 
+
     int rank,size;
     rank = 0;
     size = 1;
@@ -207,8 +209,9 @@ int main(int argc, char* argv[])
     const double L = std::stod(argv[2]);
     const int N = std::stoul(argv[3]);
 
-    if (rank == 0)
+    if (rank == 0){
         printf("Running Diffusion 2D on a %d x %d grid with %d ranks.\n", N, N, size);
+    }
 
     Diffusion system(D, L, N, rank, size);
     system.compute_diagnostics(0);
