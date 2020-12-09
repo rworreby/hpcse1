@@ -153,10 +153,15 @@ struct Diffusion
         MPI_Reduce(hist.data(), g_hist.data(), g_hist.size(), MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
         if (rank == 0) {
+            std::string hist_filename{ "histogram.csv" };
+            std::ofstream hist_file(hist_filename, std::ios::out);
+            hist_file << "bin,amount" << '\n';
+
             printf("=====================================\n");
             printf("Output of compute_histogram():\n");
             int gl = 0;
             for (int i = 0; i < M; i++) {
+                hist_file << i << "," << g_hist[i] << '\n';
                 printf("bin[%d] = %d\n", i, g_hist[i]);
                 gl += g_hist[i];
             }
@@ -218,6 +223,12 @@ int main(int argc, char* argv[])
     for (int step = 0; step < 10000; ++step) {
         system.advance();
         system.compute_diagnostics(system.dt * step);
+
+        static bool print_once{ true };
+        if (print_once && system.dt * step > 0.5){
+            system.compute_histogram();
+            print_once = false;
+        }
     }
     system.compute_histogram();
     if (rank == 0)
