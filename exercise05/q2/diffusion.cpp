@@ -18,13 +18,13 @@ struct Diffusion
     int N;        //grid points per direction (whole grid is NxN)
     int local_N;  //number of rows of this process
 
-    double h,dt;  //grid spacing and timestep
+    double h, dt;  //grid spacing and timestep
     double aux;   //auxiliary variable
 
     std::vector<double> c;    //solution vector
     std::vector<double> c_tmp;
 
-    int rank,size; //MPI rank and total number of ranks
+    int rank, size; //MPI rank and total number of ranks
 
     std::vector<Diagnostics> diag;
 
@@ -46,14 +46,33 @@ struct Diffusion
 
     void advance()
     {
+        int prev_rank{ rank - 1 };
+        int next_rank{ rank + 1 };
 
-        // TODO: Implement Blocking MPI communication to exchange the ghost
-        // cells on a periodic domain required to compute the central finite
-        // differences below.
+        if (prev_rank < 0){
+            prev_rank = MPI_PROC_NULL;
+        }
+        if (next_rank >= size){
+            next_rank = MPI_PROC_NULL;
+        }
 
-        // *** start MPI part ***
-
-        // *** end MPI part ***
+        /* Signature of MPI_Sendrecv
+        int MPI_Sendrecv(const void *sendbuf, int sendcount, MPI_Datatype sendtype,
+                        int dest, int sendtag,
+                        void *recvbuf, int recvcount, MPI_Datatype recvtype,
+                        int source, int recvtag,
+                        MPI_Comm comm, MPI_Status *status)
+        */
+        MPI_Sendrecv(&c[(N+2)*local_N+1], N, MPI_DOUBLE,
+                     next_rank, 0,
+                     &c[1], N, MPI_DOUBLE,
+                     prev_rank, 0,
+                     MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Sendrecv(&c[(N+2)+1], N, MPI_DOUBLE,
+                     prev_rank, 0,
+                     &c[(N+2)*(local_N+1)+1], N, MPI_DOUBLE,
+                     next_rank, 0,
+                     MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
         /* Central differences in space, forward Euler in time, Dirichlet BCs */
         for (int i = 1; i <= local_N; ++i)
@@ -64,7 +83,7 @@ struct Diffusion
                            c[(i + 1) * (N + 2) + j] + c[(i - 1) * (N + 2) + j] -
                            4 * c[i * (N + 2) + j]);
 
-        /* Use swap instead of rho_ = rho_tmp__. This is much more efficient,
+        /* Use swap instead of c = c_tmp. This is much more efficient,
            because it does not copy element by element, just replaces storage
            pointers. */
         using std::swap;
@@ -73,22 +92,18 @@ struct Diffusion
 
     void compute_diagnostics(const double t)
     {
-        double ammount = 0.0;
+        double amount = 0.0;
 
         /* Integration to compute total concentration */
         for (int i = 1; i <= local_N; ++i)
             for (int j = 1; j <= N; ++j)
-                ammount += c[i * (N + 2) + j] * h * h;
+                amount += c[i * (N + 2) + j] * h * h;
 
-        // TODO: Sum total ammount from all ranks
-
-        // *** start MPI part ***
-
-        // *** end MPI part ***
+        MPI_Reduce(rank ? &amount : MPI_IN_PLACE, &amount, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
         if (rank == 0) {
-            std::cout << "t = " << t << " ammount = " << ammount << '\n';
-            diag.push_back(Diagnostics(t, ammount));
+            std::cout << "t = " << t << " amount = " << amount << '\n';
+            diag.push_back(Diagnostics(t, amount));
         }
     }
 
@@ -120,12 +135,8 @@ struct Diffusion
                     min_c = c0;
             }
 
-        // TODO: Compute the global min and max concentration values on this myRank and
-        // store the result in min_rho and max_rho, respectively.
-
-        // *** start MPI part ***
-
-        // *** end MPI part ***
+        MPI_Allreduce(MPI_IN_PLACE, &max_c, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+        MPI_Allreduce(MPI_IN_PLACE, &min_c, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
 
         double epsilon = 1e-8;
         double dh = (max_c - min_c + epsilon) / M;
@@ -136,20 +147,17 @@ struct Diffusion
                 hist[bin]++;
             }
 
-        // TODO: Compute the sum of the histogram bins over all ranks and store
-        // the result in the array g_hist.  Only myRank 0 must print the result.
         std::vector<int> g_hist(M, 0);
-        // *** start MPI part ***
 
-        // *** end MPI part ***
+        MPI_Reduce(hist.data(), g_hist.data(), g_hist.size(), MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
         if (rank == 0) {
             printf("=====================================\n");
             printf("Output of compute_histogram():\n");
             int gl = 0;
             for (int i = 0; i < M; i++) {
-                printf("bin[%d] = %d\n", i, hist[i]);
-                gl += hist[i];
+                printf("bin[%d] = %d\n", i, g_hist[i]);
+                gl += g_hist[i];
             }
             printf("Total elements = %d\n", gl);
         }
@@ -179,6 +187,9 @@ int main(int argc, char* argv[])
 {
     if (argc < 4) {
         std::cerr << "Usage: " << argv[0] << " D L N \n";
+        std::cerr << "D: diffusion constant\n";
+        std::cerr << "L: and domain length\n";
+        std::cerr << "N: grid points per direction (whole grid is NxN)" << '\n';
         return 1;
     }
 
@@ -197,7 +208,7 @@ int main(int argc, char* argv[])
     const int N = std::stoul(argv[3]);
 
     if (rank == 0)
-        printf("Running Diffusion 2D on a %d x %d grid with %d ranks.\n",N,N,size);
+        printf("Running Diffusion 2D on a %d x %d grid with %d ranks.\n", N, N, size);
 
     Diffusion system(D, L, N, rank, size);
     system.compute_diagnostics(0);
