@@ -14,7 +14,7 @@ function check()
 }
 
 for N in $(seq 1024 512 6144) ; do
-  cmd="mpirun -n 8 ./diffusion 1.0 2.0 $N ; check"
+  cmd="mpirun -n 16 --oversubscribe ./diffusion 1.0 2.0 $N ; check"
   echo "$cmd"
   eval "$cmd"
   echo
