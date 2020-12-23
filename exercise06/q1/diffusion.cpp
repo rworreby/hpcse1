@@ -214,7 +214,22 @@ struct Diffusion {
 
     void write_mpi_parallel(const std::string& filename) const
     {
-        // TODO: add your MPI I/O code here
+        const int fullN = N + 2; // My part of the grid plus 2 ghost cells
+        const int nlocal = (local_N) * (fullN);
+        const size_t elementCount = size * nlocal;
+
+        MPI_File file;
+        MPI_Offset len, offset;
+
+        len = nlocal * sizeof(double);
+        offset = rank * len;
+
+        MPI_File_open(MPI_COMM_WORLD, filename.c_str(),
+                      MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &file);
+
+        MPI_File_write_at_all(file, offset, &c[fullN], nlocal, MPI_DOUBLE, MPI_STATUS_IGNORE);
+
+        MPI_File_close(&file);
     }
 };
 
