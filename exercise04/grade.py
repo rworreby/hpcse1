@@ -5,8 +5,8 @@
 question_conf = {
         'Name' : 'Exercise 4',
         'Questions' : {
-            'Question 3': {'Total Points': 45},
-            'Question 4': {'Total Points': 16}
+            'Question 1': {'Total Points': 45},
+            'Question 2': {'Total Points': 16}
             }
         }
 

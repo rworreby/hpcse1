@@ -17,7 +17,5 @@
 # https://moodle-app2.let.ethz.ch/course/view.php?id=13666
 
 python3 grade.py \
-    --question1 43 \
-    --comment1 '-2p for not handling case where size does not divide N.' \
-    --question2 16 \
-    --comment2 'Perfect' \
+    --question1 20 \
+    --comment1 'Perfect' \
