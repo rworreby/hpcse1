@@ -3,10 +3,9 @@
 # Description: Generate grading submission file
 # Copyright 2020 ETH Zurich. All Rights Reserved.
 question_conf = {
-        'Name' : 'Exercise 4',
+        'Name' : 'Exercise 6',
         'Questions' : {
-            'Question 3': {'Total Points': 45},
-            'Question 4': {'Total Points': 16}
+            'Question 1': {'Total Points': 20},
             }
         }
 
